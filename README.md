@@ -1,4 +1,4 @@
-# CDP Suspend Resources
+# CDP Suspend Datahub Resources
 
 This repo contains a set of shell/python utilities to start, stop, and check the status of CDP environments and datahubs. It enables automation use cases in starting and stopping datahubs and environments to save resource consumption costs.
 
