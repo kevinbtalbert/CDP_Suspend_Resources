@@ -15,6 +15,8 @@ This step configures the cli to leverage the CDP credential with access to the e
 
 ## Script Library
 
+**Note:** If you are running this inside a virtual environment (e.g. you did step 1), you will need to run the following command before running any of the scripts in the script library: `source cdpclienv/bin/activate`
+
 ### check-status-datahubs.sh
 This script returns the status the datahubs the credential being used has access to.
 

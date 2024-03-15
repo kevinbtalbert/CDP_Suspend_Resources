@@ -1,5 +1,4 @@
 #!/bin/bash
-source cdpclienv/bin/activate
 
 declare -a dataHubNames
 declare -a dataHubStatuses

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir cdpclienv
 python3 -m venv cdpclienv
 source cdpclienv/bin/activate
