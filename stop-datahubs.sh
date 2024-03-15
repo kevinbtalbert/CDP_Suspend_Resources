@@ -1,0 +1,87 @@
+#!/bin/bash
+source cdpclienv/bin/activate
+
+declare -a dataHubNames
+declare -a dataHubStatuses
+declare -a selectedDataHubsIndexes
+
+# Function to print DataHubs with status in a tabular format
+printDataHubs() {
+    echo "Index | DataHub Name         | Status"
+    echo "-------------------------------------"
+    for i in "${!dataHubNames[@]}"; do
+        printf "%-5d | %-20s | %s\n" "$((i+1))" "${dataHubNames[$i]}" "${dataHubStatuses[$i]}"
+    done
+}
+
+# Function to check each DataHub's status and add to arrays
+checkDataHubStatus() {
+    local dataHubName=$1
+    local output=$(cdp datahub describe-cluster --cluster-name "$dataHubName" 2>&1)
+    local status=$(cdp datahub describe-cluster --cluster-name "$dataHubName" 2>&1 | grep '"clusterStatus":' | awk -F': "' '{print $2}' | tr -d '",')
+
+    # Check if status was successfully extracted; if not, it might be a permissions error or other issue
+    if [[ -z "$status" ]]; then
+        # Assuming permission denied or similar issue if status is empty
+        status="PERMISSION_DENIED"
+    fi
+
+    dataHubNames+=("$dataHubName")
+    dataHubStatuses+=("$status")
+}
+
+# Main logic to list clusters and process each
+dataHubList=$(cdp datahub list-clusters | grep -o '"clusterName": *"[^"]*' | awk -F'"' '{print $4}')
+for dataHubName in $dataHubList; do
+    checkDataHubStatus "$dataHubName"
+done
+
+printDataHubs
+
+read -p "Do you want to proceed with shutting down specific DataHubs? (Y/N): " proceed
+
+if [[ $proceed =~ ^[Yy]$ ]]; then
+    read -p "Enter the indexes of the DataHubs to shut down (e.g., 1,3,5): " indexes
+    IFS=',' read -ra ADDR <<< "$indexes"
+    for i in "${ADDR[@]}"; do
+        index=$((i-1))  # Adjust for zero-based indexing
+        if [[ $index -lt ${#dataHubNames[@]} ]]; then
+            # Add a check for PERMISSION_DENIED status
+            if [[ "${dataHubStatuses[$index]}" != "PERMISSION_DENIED" ]]; then
+                selectedDataHubsIndexes+=("$index")
+            else
+                echo "Skipping ${dataHubNames[$index]} due to permissions error."
+            fi
+        fi
+    done
+
+    for index in "${selectedDataHubsIndexes[@]}"; do
+        dataHubName="${dataHubNames[$index]}"
+        echo "Initiating shutdown for $dataHubName..."
+        cdp datahub stop-cluster --cluster-name "$dataHubName"
+    done
+
+    if [ ${#selectedDataHubsIndexes[@]} -gt 0 ]; then
+        echo "Monitoring the shutdown process for the selected DataHubs..."
+        while :; do
+            allStopped=true
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Checking status of selected DataHubs"
+            for index in "${selectedDataHubsIndexes[@]}"; do
+                dataHubName="${dataHubNames[$index]}"
+                # Parse only the overall status of the DataHub, ignoring service statuses
+                status=$(cdp datahub describe-cluster --cluster-name "$dataHubName" | grep -o '"clusterStatus": *"[^"]*' | awk -F'"' '{print $4}')
+                echo "$dataHubName: $status"
+                if [[ "$status" != "STOPPED" ]]; then
+                    allStopped=false
+                fi
+            done
+            if [[ "$allStopped" = true ]]; then
+                echo "All selected DataHubs have been successfully stopped."
+                break
+            fi
+            sleep 15
+        done
+    else
+        echo "No valid selections made. No DataHubs are being shut down."
+    fi
+fi
