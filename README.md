@@ -51,6 +51,13 @@ Index | DataHub Name         | Status
 ### start-datahubs.sh
 This script allows users to START datahubs the credential being used has access to. It constantly polls for START status completion of the selected datahubs. The below example shows shutting down 1 datahub however more can be done as well using comma separated values in the command line.
 
+#### Usage Pattern 1 (Interactive)
+`bash ./start-datahubs.sh`
+
+#### Usage Pattern 2 (Non-interactive)
+`bash ./start-datahubs.sh solr-search,go-01-solr,etc`
+
+
 Sample output: `bash ./start-datahubs.sh`
 ```bash
 Index | DataHub Name         | Status
@@ -96,6 +103,13 @@ All selected DataHubs have been successfully started.
 ### stop-datahubs.sh
 This script allows users to STOP datahubs the credential being used has access to. It constantly polls for START status completion of the selected datahubs. The below example shows shutting down 2 datahubs however more or less can be done as well using comma separated values in the command line.
 
+#### Usage Pattern 1 (Interactive)
+`bash ./stop-datahubs.sh`
+
+#### Usage Pattern 2 (Non-interactive)
+`bash ./stop-datahubs.sh solr-search,go-01-solr,etc`
+
+
 Sample output: `bash ./stop-datahubs.sh`
 ```bash
 Index | DataHub Name         | Status
@@ -140,4 +154,54 @@ go01-edge-flow: STOPPED
 All selected DataHubs have been successfully stopped.
 ```
 
+### datahub-automator.py
+This is a sample for locally automating startups/shutdowns, and can be run from an edge node or user's personal box. See also, Azure Functions approach below.
+
+### Azure Functions for Automation
+
+#### 1. Create Timer Trigger Function
+
+Step 1: In the Azure Portal, create a new Function App if you haven't already.
+
+
+Step 2: Within your Function App, create a new function and select the "Timer trigger" template.
+
+
+Step 3: Set the schedule expression using the NCRONTAB format. For example, to run at 8am EST every Monday, you might use 0 0 13 * * Mon assuming the Azure server's time zone is UTC. Adjust the time accordingly for 6pm EST on Fridays.
+
+
+#### 2. Implement the Script Execution
+Azure Functions support various programming languages, including Python. You can implement the logic to execute your shell scripts (start-datahubs.sh and stop-datahubs.sh) within the function. For Python, you would use the subprocess module, similar to the local Python script approach.
+
+```python
+import datetime
+import logging
+import subprocess
+import azure.functions as func
+
+def main(mytimer: func.TimerRequest) -> None:
+    utc_timestamp = datetime.datetime.utcnow().replace(
+        tzinfo=datetime.timezone.utc).isoformat()
+
+    if mytimer.past_due:
+        logging.info('The timer is past due!')
+
+    logging.info('Python timer trigger function ran at %s', utc_timestamp)
+
+    # Example to run a script - adjust the path and script name as needed
+    script_path = "/path/to/your/script.sh"
+    result = subprocess.run(["bash", script_path], capture_output=True, text=True)
+
+    logging.info(f"Script output: {result.stdout}")
+    if result.stderr:
+        logging.error(f"Script error: {result.stderr}")
+```
+
+
+#### 3. Adjust for Time Zones
+Azure Functions run in UTC by default. You can adjust the CRON expression for your timezone, or you can manage timezone settings within the Azure Function App settings by setting the WEBSITE_TIME_ZONE to the desired timezone, like Eastern Standard Time.
+
+
+#### 4. Deploy and Monitor
+Deploy your function to Azure, and monitor its execution through the Azure Portal. Azure provides logs and monitoring tools to help you track the function's execution and troubleshoot any issues.
 
