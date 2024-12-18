@@ -103,7 +103,7 @@ if [ ${#selectedEnvironmentsIndexes[@]} -gt 0 ]; then
             environmentName="${validEnvironmentNames[$index]}"
             status=$(cdp environments describe-environment --environment-name "$environmentName" | grep -o '"status": *"[^"]*' | awk -F'"' '{print $4}')
             echo "$environmentName: $status"
-            if [[ "$status" != "STOPPED" && "$status" != "STOPPING" ]]; then
+            if [[ "$status" != "ENV_STOPPED" ]]; then
                 allStopped=false
             fi
         done
@@ -113,6 +113,7 @@ if [ ${#selectedEnvironmentsIndexes[@]} -gt 0 ]; then
         fi
         sleep 15
     done
+    exit 0  # Ensure the script terminates after monitoring is complete
 else
-    echo "No valid selections made. No environments are being shut down."
+    echo "No valid selections made. No environments are being stopped."
 fi
