@@ -113,6 +113,8 @@ if [ ${#selectedEnvironmentsIndexes[@]} -gt 0 ]; then
         fi
         sleep 15
     done
+    exit 0  # Ensure the script terminates after monitoring is complete
 else
     echo "No valid selections made. No environments are being started."
 fi
+
