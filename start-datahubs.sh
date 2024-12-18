@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source cdpclienv/bin/activate
+
 declare -a dataHubNames
 declare -a dataHubStatuses
 declare -a validDataHubNames  # Array to hold only valid DataHub names
