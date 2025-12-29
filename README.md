@@ -1,6 +1,53 @@
-# CDP Suspend Datahub Resources
+# CDP Suspend Resources
 
-This repo contains a set of shell/python utilities to start, stop, and check the status of CDP environments and datahubs. It enables automation use cases in starting and stopping datahubs and environments to save resource consumption costs.
+This repo contains a set of shell/python utilities to start, stop, and check the status of CDP environments, datahubs, and ML workspaces. It enables automation use cases in starting and stopping resources to save resource consumption costs.
+
+## Quick Start - Master Scripts
+
+The **master-shutdown.sh** and **master-startup.sh** scripts provide automated orchestration of CDP resource lifecycle management with configurable timing between phases.
+
+### Master Shutdown Script
+
+Orchestrates shutdown in the proper order: ML Workspaces → DataHubs → Environment
+
+### Master Startup Script
+
+Orchestrates startup in the proper order: Environment → DataHubs → ML Workspaces
+
+### Features
+- **Bidirectional Control** - Complete shutdown and startup automation
+- Configurable delays between phases (default: 1 hour)
+- All configuration via environment variables in the script
+- Comprehensive logging and monitoring
+- Ready for cron/scheduler integration
+- Flexible scheduling for different resource types
+
+### Quick Setup
+
+```bash
+# Step 1: Setup virtual environment
+bash setup-venv.sh
+
+# Step 2: Test your configuration
+bash test-master-config.sh
+
+# Step 3: Edit master-shutdown.sh and master-startup.sh with your settings
+# - Set CDP credentials
+# - Set environment name (optional)
+# - Set DataHub names (optional)
+# - Set ML Workspace CRNs (optional)
+# - Set delay between phases
+
+# Step 4: Run the master scripts
+bash master-shutdown.sh   # Shutdown resources
+bash master-startup.sh    # Startup resources
+```
+
+**Documentation**:
+- [MASTER_SCRIPT_README.md](MASTER_SCRIPT_README.md) - Shutdown script detailed documentation
+- [STARTUP_GUIDE.md](STARTUP_GUIDE.md) - Startup script detailed documentation (NEW!)
+- [PHASE_SKIPPING_GUIDE.md](PHASE_SKIPPING_GUIDE.md) - Phase skipping feature guide
+- [QUICK_START.md](QUICK_START.md) - Quick reference guide
 
 ## Prerequisite scripts
 
@@ -99,6 +146,24 @@ go01-edge-flow: AVAILABLE
 All selected DataHubs have been successfully started.
 ```
 
+
+### suspend-ml-workspaces.sh
+This script allows users to SUSPEND ML Workspaces the credential being used has access to. It constantly polls for suspension status completion of the selected workspaces.
+
+#### Usage Pattern 1 (Interactive)
+`bash ./suspend-ml-workspaces.sh`
+
+#### Usage Pattern 2 (Non-interactive)
+`bash ./suspend-ml-workspaces.sh crn:cdp:ml:...,crn:cdp:ml:...`
+
+### start-ml-workspaces.sh
+This script allows users to RESUME (start) ML Workspaces the credential being used has access to. It constantly polls for resume status completion of the selected workspaces.
+
+#### Usage Pattern 1 (Interactive)
+`bash ./start-ml-workspaces.sh`
+
+#### Usage Pattern 2 (Non-interactive)
+`bash ./start-ml-workspaces.sh crn:cdp:ml:...,crn:cdp:ml:...`
 
 ### stop-datahubs.sh
 This script allows users to STOP datahubs the credential being used has access to. It constantly polls for START status completion of the selected datahubs. The below example shows shutting down 2 datahubs however more or less can be done as well using comma separated values in the command line.
