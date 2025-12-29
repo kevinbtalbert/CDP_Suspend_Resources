@@ -16,8 +16,8 @@ set -e  # Exit on error
 ################################################################################
 
 # CDP Credentials - Set these to your CDP access credentials
-export CDP_ACCESS_KEY_ID="82c1e84d-b960-4f67-bcc9-123e0a98f886"
-export CDP_PRIVATE_KEY="M0i3EXPPZLHVO0jUDRlSpMTIx1nu8AtGQka9ug+mwEE="
+export CDP_ACCESS_KEY_ID="YOURSHERE"
+export CDP_PRIVATE_KEY="YOURSHERE"
 
 # CDP Region/Endpoint (optional - defaults to us-west-1)
 export CDP_REGION="us-west-1"
@@ -27,13 +27,13 @@ export CDP_ENDPOINT_URL="https://console.${CDP_REGION}.cdp.cloudera.com"
 # Specify the environment name to start
 # Leave empty ("") to skip environment startup
 # Example: "pdf-dec-cdp-env" or "xzhong-cml-env"
-ENVIRONMENT_NAME="pdf-dec-cdp-env"
+ENVIRONMENT_NAME="cdp-env"
 
 # DataHub Configuration
 # Specify DataHub names as comma-separated list
 # Leave empty ("") to skip DataHub startup
 # Examples:
-#   DATAHUB_NAMES="anjanraz,fcatestdh"  # Specific datahubs
+#   DATAHUB_NAMES="dh-1,dh-2"  # Specific datahubs
 #   DATAHUB_NAMES=""                     # Skip DataHub startup
 DATAHUB_NAMES=""
 
@@ -41,9 +41,9 @@ DATAHUB_NAMES=""
 # Specify ML Workspace CRNs as comma-separated list
 # Leave empty ("") to skip ML Workspace resume
 # Examples:
-#   ML_WORKSPACE_CRNS="crn:cdp:ml:us-west-1:558bc1d2-8867-4357-8524-311d51259233:workspace:28c27082-367e-4c9e-9b75-81776f0bd86b"
+#   ML_WORKSPACE_CRNS="crn:enteryourshere"
 #   ML_WORKSPACE_CRNS=""  # Skip ML Workspace resume
-ML_WORKSPACE_CRNS="crn:cdp:ml:us-west-1:558bc1d2-8867-4357-8524-311d51259233:workspace:28c27082-367e-4c9e-9b75-81776f0bd86b"
+ML_WORKSPACE_CRNS="crn:cdp:ml:enteryourshere"
 
 # Timing Configuration (in seconds)
 # Default: 3600 seconds = 1 hour between each phase

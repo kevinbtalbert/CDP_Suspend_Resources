@@ -1,12 +1,14 @@
 #!/bin/bash
 
 ################################################################################
-# CDP Master Shutdown Script - EXAMPLE CONFIGURATION
+# CDP Master Shutdown Script
 # 
-# This is an example configuration file showing how to configure the master
-# shutdown script for your specific environment.
+# This script orchestrates the shutdown of CDP resources in the proper order:
+# 1. ML Workspaces (suspend)
+# 2. DataHubs (stop) - 1 hour after ML Workspaces
+# 3. Environments (stop) - 1 hour after DataHubs
 #
-# Copy this file to master-shutdown.sh and edit the configuration values.
+# All configuration is done via variables at the top of this script.
 ################################################################################
 
 set -e  # Exit on error
@@ -16,36 +18,31 @@ set -e  # Exit on error
 ################################################################################
 
 # CDP Credentials - Set these to your CDP access credentials
-export CDP_ACCESS_KEY_ID="YOURSHERE"
-export CDP_PRIVATE_KEY="YOURSHERE"
+export CDP_ACCESS_KEY_ID="82c1e84d-b960-4f67-bcc9-123e0a98f886"
+export CDP_PRIVATE_KEY="M0i3EXPPZLHVO0jUDRlSpMTIx1nu8AtGQka9ug+mwEE="
 
 # CDP Region/Endpoint (optional - defaults to us-west-1)
 export CDP_REGION="us-west-1"
 export CDP_ENDPOINT_URL="https://console.${CDP_REGION}.cdp.cloudera.com"
 
 # Environment Configuration
-# Example: "xzhong-cml-env" or "se-sandbox-aws"
-ENVIRONMENT_NAME="cdp-env"
+# Specify the environment name to shut down
+# Leave empty ("") to skip environment shutdown
+ENVIRONMENT_NAME=""
 
 # DataHub Configuration
-# Specify DataHub names as comma-separated list
-# Examples:
-#   DATAHUB_NAMES="dh-1,dh-2"  # Specific datahubs
-#   DATAHUB_NAMES=""                     # All datahubs in environment
+# Specify DataHub names as comma-separated list (e.g., "datahub1,datahub2,datahub3")
+# Leave empty ("") to skip DataHub shutdown
 DATAHUB_NAMES=""
 
 # ML Workspace Configuration
 # Specify ML Workspace CRNs as comma-separated list
-# Examples:
-#   ML_WORKSPACE_CRNS="crn:enteryourshere"
-#   ML_WORKSPACE_CRNS=""  # All ML workspaces
-ML_WORKSPACE_CRNS="crn:enteryourshere"
+# Leave empty ("") to skip ML Workspace suspension
+ML_WORKSPACE_CRNS=""
 
 # Timing Configuration (in seconds)
 # Default: 3600 seconds = 1 hour between each phase
-# For testing: 60 seconds = 1 minute
-# For production: 3600 seconds = 1 hour
-DELAY_BETWEEN_PHASES=60  # Set to 60 for testing, 3600 for production
+DELAY_BETWEEN_PHASES=3600
 
 # Logging Configuration
 LOG_DIR="./logs"
@@ -304,4 +301,5 @@ log "All configured CDP resources have been shut down successfully."
 log "To start resources again, use the corresponding start scripts."
 
 exit 0
+
 
